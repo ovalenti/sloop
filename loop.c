@@ -10,7 +10,7 @@
 #include <string.h>
 #include <time.h>
 
-#include "loop.h"
+#include <sloop/loop.h>
 
 static LIST_HEAD(watches);
 static LIST_HEAD(timeouts);

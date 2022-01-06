@@ -10,7 +10,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "sb.h"
+#include <sloop/sb.h>
 
 struct chunk {
     char* data;

@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "blob.h"
+#include <sloop/blob.h>
 
 #define HDR(type, len) ((type << 16) | (len))
 #define TYPE(hdr) ((hdr) >> 16)

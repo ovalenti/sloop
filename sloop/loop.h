@@ -8,7 +8,7 @@
 #ifndef LOOP_H_
 #define LOOP_H_
 
-#include "list.h"
+#include <sloop/list.h>
 
 enum loop_io_event {
     EVENT_READ  = 1 << 0,

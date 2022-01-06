@@ -8,9 +8,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "loop.h"
+#include <sloop/loop.h>
 
-#include "defer.h"
+#include <sloop/defer.h>
 
 static LIST_HEAD(deferred_calls);
 static struct loop_timeout deferred_trigger = { 0 };
