@@ -10,8 +10,8 @@
 #ifndef SB_H_
 #define SB_H_
 
-#include <sloop/list.h>
-#include <sloop/loop.h>
+#include "list.h"
+#include "loop.h"
 
 struct sb {
     void (*data_available)(struct sb* sb);
