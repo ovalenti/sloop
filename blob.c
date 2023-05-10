@@ -16,7 +16,7 @@
 #define LENGTH(hdr) ((hdr)&0xffff)
 #define AT(blob_ptr, off) (struct blob*)(((char*)blob_ptr) + off)
 
-static uint32_t ntoh_u32(struct blob* blob)
+static uint32_t ntoh_u32(struct sloop_blob* blob)
 {
     unsigned char* c = (unsigned char*)blob;
     uint32_t i;
@@ -32,7 +32,7 @@ static uint32_t ntoh_u32(struct blob* blob)
     return i;
 }
 
-static void hton_u32(struct blob* blob, uint32_t i)
+static void hton_u32(struct sloop_blob* blob, uint32_t i)
 {
     unsigned char* c = (unsigned char*)blob;
 
@@ -45,7 +45,7 @@ static void hton_u32(struct blob* blob, uint32_t i)
     c[0] = i;
 }
 
-static void msg_make_room(struct msg* msg, int free_space)
+static void msg_make_room(struct sloop_msg* msg, int free_space)
 {
     if (msg->alloc < msg->ptr + free_space) {
         msg->alloc = (((msg->ptr + free_space) / 64) + 1) * 64;
@@ -53,9 +53,9 @@ static void msg_make_room(struct msg* msg, int free_space)
     }
 }
 
-static void msg_make_hdr(struct msg* msg, enum blob_type type, const char* name, int payload)
+static void msg_make_hdr(struct sloop_msg* msg, enum blob_type type, const char* name, int payload)
 {
-    struct blob* blob;
+    struct sloop_blob* blob;
     int hdr_len;
 
     if (name == NULL)
@@ -73,7 +73,7 @@ static void msg_make_hdr(struct msg* msg, enum blob_type type, const char* name,
     msg->ptr += hdr_len;
 }
 
-msg_nest_cookie msg_nest_open(struct msg* msg, const char* name)
+msg_nest_cookie msg_nest_open(struct sloop_msg* msg, const char* name)
 {
     msg_nest_cookie cookie = msg->ptr;
 
@@ -82,12 +82,12 @@ msg_nest_cookie msg_nest_open(struct msg* msg, const char* name)
     return cookie;
 }
 
-void msg_nest_close(struct msg* msg, msg_nest_cookie cookie)
+void msg_nest_close(struct sloop_msg* msg, msg_nest_cookie cookie)
 {
     hton_u32(AT(msg->blob, cookie), HDR(BLOB_TYPE_NEST, msg->ptr - cookie));
 }
 
-void msg_int_append(struct msg* msg, const char* name, int i)
+void msg_int_append(struct sloop_msg* msg, const char* name, int i)
 {
     msg_make_hdr(msg, BLOB_TYPE_INT, name, 4);
 
@@ -95,7 +95,7 @@ void msg_int_append(struct msg* msg, const char* name, int i)
     msg->ptr += 4;
 }
 
-void msg_str_append(struct msg* msg, const char* name, const char* str)
+void msg_str_append(struct sloop_msg* msg, const char* name, const char* str)
 {
     int str_len = strlen(str) + 1;
 
@@ -105,22 +105,22 @@ void msg_str_append(struct msg* msg, const char* name, const char* str)
     msg->ptr += str_len;
 }
 
-enum blob_type blob_type(struct blob* blob) { return TYPE(ntoh_u32(blob)); }
+enum blob_type blob_type(struct sloop_blob* blob) { return TYPE(ntoh_u32(blob)); }
 
-struct blob* blob_next(struct blob* blob) { return AT(blob, LENGTH(ntoh_u32(blob))); }
+struct sloop_blob* blob_next(struct sloop_blob* blob) { return AT(blob, LENGTH(ntoh_u32(blob))); }
 
-int blob_fits_parent(struct blob* blob, struct blob* parent)
+int blob_fits_parent(struct sloop_blob* blob, struct sloop_blob* parent)
 {
     return (parent <= blob) && (AT(blob, 4) < blob_next(parent)) && (blob_next(blob) <= blob_next(parent));
 }
 
-int blob_fits(struct blob* blob, int len) { return len >= 4 && blob_len(blob) <= len; }
+int blob_fits(struct sloop_blob* blob, int len) { return len >= 4 && blob_len(blob) <= len; }
 
-int blob_len(struct blob* blob) { return LENGTH(ntoh_u32(blob)); }
+int blob_len(struct sloop_blob* blob) { return LENGTH(ntoh_u32(blob)); }
 
-char* blob_name(struct blob* blob) { return (char*)AT(blob, 4); }
+char* blob_name(struct sloop_blob* blob) { return (char*)AT(blob, 4); }
 
-static int blob_hdr_len(struct blob* blob)
+static int blob_hdr_len(struct sloop_blob* blob)
 {
     char* bytes = (char*)blob;
     int ptr     = 4;
@@ -132,7 +132,7 @@ static int blob_hdr_len(struct blob* blob)
     return ptr + 1;
 }
 
-int blob_int_get(struct blob* blob, int* i)
+int blob_int_get(struct sloop_blob* blob, int* i)
 {
     int hdr_len = blob_hdr_len(blob);
 
@@ -143,7 +143,7 @@ int blob_int_get(struct blob* blob, int* i)
     return 0;
 }
 
-int blob_str_get(struct blob* blob, char** str)
+int blob_str_get(struct sloop_blob* blob, char** str)
 {
     int hdr_len  = blob_hdr_len(blob);
     int blob_len = LENGTH(ntoh_u32(blob));
@@ -157,18 +157,18 @@ int blob_str_get(struct blob* blob, char** str)
     return 0;
 }
 
-int blob_nest_get(struct blob* blob, struct blob** first_child)
+int blob_nest_get(struct sloop_blob* blob, struct sloop_blob** first_child)
 {
     *first_child = AT(blob, blob_hdr_len(blob));
 
     return 0;
 }
 
-int blob_nest_parse(struct blob* blob, char** mapping, struct blob** result, int maplen)
+int blob_nest_parse(struct sloop_blob* blob, char** mapping, struct sloop_blob** result, int maplen)
 {
-    struct blob* child;
+    struct sloop_blob* child;
 
-    memset(result, 0, sizeof(struct blob*) * maplen);
+    memset(result, 0, sizeof(struct sloop_blob*) * maplen);
 
     if (blob_type(blob) != BLOB_TYPE_NEST)
         return -1;
