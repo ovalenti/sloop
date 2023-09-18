@@ -14,7 +14,7 @@
 #define HDR(type, len) ((type << 16) | (len))
 #define TYPE(hdr) ((hdr) >> 16)
 #define LENGTH(hdr) ((hdr)&0xffff)
-#define AT(blob_ptr, off) (struct blob*)(((char*)blob_ptr) + off)
+#define AT(blob_ptr, off) (struct sloop_blob*)(((char*)blob_ptr) + off)
 
 static uint32_t ntoh_u32(struct sloop_blob* blob)
 {
