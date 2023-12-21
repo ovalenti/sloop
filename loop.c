@@ -87,7 +87,7 @@ void loop_run()
         {
             if (nfds == poll_fds_len) {
                 poll_fds_len += 16;
-                poll_fds = (struct pollfd*)realloc(poll_fds, poll_fds_len);
+                poll_fds = (struct pollfd*)realloc(poll_fds, poll_fds_len * sizeof(struct pollfd));
             }
 
             memset(&poll_fds[nfds], 0, sizeof(struct pollfd));
