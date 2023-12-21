@@ -23,7 +23,7 @@ static long long time_now()
     struct timespec tp;
     clock_gettime(CLOCK_MONOTONIC, &tp);
 
-    return ((long long)tp.tv_sec) * 1000 + tp.tv_nsec / 100000;
+    return ((long long)tp.tv_sec) * 1000 + tp.tv_nsec / 1000000;
 }
 
 void loop_watch_set(struct loop_watch* watch, enum loop_io_event events)
